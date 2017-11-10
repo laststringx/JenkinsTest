@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="clean-build-deploy" name="TestEjbDynClient">
+    
+	<!-- =============== Properties ============== -->
+	
+	<property environment="env"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.8"/>
+    <property name="source" value="1.8"/>
+	
+	<!-- ============ Current karen application version" ================-->
+	
+	<property name="app.name" value="TestEjbDynClient"/>
+	<property name="app.version" value="build-2015-12-11-002"/>
+	
+	<!-- ====================================================-->
+	
+	<property name="build.sysclasspath" value="ignore"/>
+	
+	<property file="config/build.properties"/>
+	
+	<property name="war.delivery" value="/home/drift/${app.name}"/>
+	<property name="war.delivery.server" value="files.udv.tdk.dk"/>
+	
+	<property name="build.compiler" value="modern"/>
+	<property name="web.home" value="web"/>
+	<property name="lib.home" value="web/WEB-INF/lib"/>
+	<property name="build.home" value="autogen/build"/>
+	<property name="dist.home" value="autogen/dist"/>
+	<property name="war.home" value="autogen/war"/>
+	
+	<property file="config/build.properties"/>
+	<property name="tomcat.shared" value="${tomcat.home}/shared/lib"/>
+	<property name="tomcat.common" value="${tomcat.home}/lib" />
+	<property name="deploy.home" value="${tomcat.home}/webapps"/>
+	
+	<property name="jboss.home" value="D:/cv/jboss-eap-6.4"/>
+	<property name="jboss.deploy.home" value="${jboss.home}/standalone/deployments"/>
+	
+	<!-- =============== Jar lib path ============== -->
+	
+	<path id="Web App Libraries.libraryclasspath">
+		<fileset dir="${lib.home}">
+			<include name="*.jar" />
+		</fileset>
+    </path>
+    <path id="TestEjbDynClient.classpath">
+        <pathelement location="build/classes"/>
+        <path refid="Web App Libraries.libraryclasspath"/>
+    </path>
+	
+	<!-- =============== init ============== -->
+	
+    <target name="init">
+        <echo level="info" message="----------------------------------------------------------------"/>
+        <echo level="info" message="* Application name ------> ${app.name}"/>
+    	<echo level="info" message="----------------------------------------------------------------"/>
+    	<echo level="info" message="* Version Id ------> ${app.version}"/>
+    	<echo level="info" message="----------------------------------------------------------------"/>
+    	
+    	<mkdir dir="autogen"/>
+
+    </target>
+	
+	<!-- =============== Compile =============== -->
+	
+	<target name="dep">
+	     <depend srcdir="src" destdir="${build.home}" cache="autogen/depcache" closure="yes" classpathref="TestEjbDynClient.classpath">
+	         <include name="**/*.java"/>
+	     </depend>
+	</target>
+	
+	<target name="compile" depends="init,dep">
+		    <!-- get the source compile classpath in a printable form -->
+			<pathconvert pathsep="${line.separator}|   |-- "
+	        	     property="echo.path.compile"
+	            	 refid="TestEjbDynClient.classpath">
+			</pathconvert>
+		
+			<echo message="|-- compile classpath"/>
+			<echo message="|   |"/>
+			<echo message="|   |-- ${echo.path.compile}"/>
+
+	        <mkdir dir="${build.home}"/>
+
+	        <javac compiler="javac1.8" encoding="ISO-8859-1" classpathref="TestEjbDynClient.classpath" debug="on"
+	            deprecation="on" destdir="${build.home}"
+	            excludes="test/**"
+	            includes="**/*.java"
+	            optimize="on">
+	            <src location="src"/>
+	        </javac>
+	</target>
+	
+	<!-- =============== Building up Project Structure    ============== -->
+	
+	<target name="dist" depends="compile">
+	    
+	     <mkdir dir="${dist.home}"/>
+	     <copy todir="${dist.home}" filtering="yes" overwrite="true" >
+	            <fileset dir="web">
+	                <exclude name="WEB-INF/**/*"/>
+	            	<exclude name="Webapp/**/*"/>
+	            </fileset>
+	     </copy>
+		
+		 <mkdir dir="${dist.home}/Webapp/Webpages"/>
+		 <copy todir="${dist.home}/Webapp/Webpages" filtering="yes" overwrite="true">
+		            <fileset dir="web/Webapp/Webpages">
+		                <include name="**/*"/>
+		            </fileset>
+		 </copy>
+		 
+		<copy todir="${dist.home}/WEB-INF" filtering="yes">
+		            <fileset dir="web/WEB-INF">
+		                <include name="web.xml"/>
+		            </fileset>
+		</copy>
+		
+		<mkdir dir="${dist.home}/WEB-INF/lib"/>
+		    	<!-- Template libraries Begin -->
+		<copy todir="${dist.home}/WEB-INF/lib" filtering="yes" >
+		            <mapper type="flatten"/>
+		            <fileset dir="web/WEB-INF">
+		                <include name="**/*jar"/>
+		            </fileset>   		
+		</copy>
+		
+		<copy todir="${dist.home}/WEB-INF/classes">
+		            <fileset dir="${build.home}"/>
+		</copy>
+		
+		<delete>
+		        	<fileset dir="${dist.home}/WEB-INF/classes">
+			            <include name="**/*properties"/>
+		        		<include name="**/*xml"/>
+		        	</fileset>
+		</delete>
+
+	</target>
+	
+	<!-- ============== Create War ============== -->
+	
+	<target name="war" depends="dist"
+	        description="Create SPAccessInfo WAR file - ready for deployment">
+	        <!-- copy property files -->
+			<copy overwrite="true" todir="${dist.home}/WEB-INF/classes">
+	            <fileset dir="config">
+	            	<include name="jboss-ejb-client.properties"/>
+	            </fileset>
+	        </copy>
+		<copy overwrite="true" todir="${dist.home}">
+			            <fileset dir="config">
+			            	<include name="web.xml"/>
+			            	<include name="jboss-deployment-structure.xml"/>
+			            </fileset>
+			        </copy>
+		
+			<!-- create war file -->	
+	        <jar destfile="${war.home}/${app.name}.war" basedir="${dist.home}"/>
+	</target>
+	
+	<!-- ============== Deploy War in Server ============== -->
+	
+	<target name="deploy-locally" depends="war">
+		<!-- copy war files in webApp of tomcat -->
+		
+		<copy todir="${jboss.deploy.home}">
+		            <fileset dir="${war.home}"/>
+		</copy>
+	</target>
+	
+	<target name="clean-build-deploy" depends="clean-autogens,deploy-locally"/>
+	
+	<!-- =============== Basic features ============== -->
+
+    <target name="clean-autogens">
+        <delete dir="autogen"/>
+    </target>
+	
+</project>
