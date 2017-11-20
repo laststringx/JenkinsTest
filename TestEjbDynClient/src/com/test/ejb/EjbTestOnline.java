@@ -10,7 +10,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import com.remote.TestEjbRemote;
+import com.facade.TestingFacade;
 @ManagedBean
 @SessionScoped
 public class EjbTestOnline implements Serializable {
@@ -31,41 +31,29 @@ public class EjbTestOnline implements Serializable {
 	}
 
 	public String getName() {
-		TestEjbRemote remote = null;
+		TestingFacade remote = null;
 		if(name != null || !name.equals("")){
-		
-		long start1  = System.nanoTime();
-		Properties p = new Properties();
-		p.put("remote.connections", "node1");
-		p.put("remote.connection.node1.port", "4447");  // the default remoting port, replace if necessary
-		p.put("remote.connection.node1.host", "localhost");
-		p.put("remote.connectionprovider.create.options.org.xnio.Options.SSL_ENABLED", "false");
-		p.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
-		p.put("org.jboss.ejb.client.scoped.context", true); // enable scoping here
-		
-		
-/*Properties prop = new Properties();
-		
-		prop.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
-		prop.put("jboss.naming.client.ejb.context", true);
-		prop.put(Context.INITIAL_CONTEXT_FACTORY, "org.jboss.naming.remote.client.InitialContextFactory");
-		prop.put(Context.PROVIDER_URL, "remote://localhost:4447");
-*/		
-		
 
-			
-		try {
-			Context context = new InitialContext(p);
-			Context ejbRootNamingContext = (Context) context.lookup("ejb:");
-			//InitialContext context = new InitialContext(prop);
-			remote = (TestEjbRemote)ejbRootNamingContext.lookup("EjbTestingEar/EjbTesting/TestEjbBean!com.remote.TestEjbRemote");
-		} catch (NamingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		System.out.println(remote.sayHello(name));
-		System.out.println(System.nanoTime()-start1);
-		return remote.sayHello(name);
+			long start1  = System.nanoTime();
+			Properties p = new Properties();
+			p.put("remote.connections", "node1");
+			p.put("remote.connection.node1.port", "4447");  // the default remoting port, replace if necessary
+			p.put("remote.connection.node1.host", "localhost");
+			p.put("remote.connectionprovider.create.options.org.xnio.Options.SSL_ENABLED", "false");
+			p.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
+			p.put("org.jboss.ejb.client.scoped.context", true); // enable scoping here
+
+
+			try {
+				Context context = new InitialContext(p);
+				Context ejbRootNamingContext = (Context) context.lookup("ejb:");
+				remote = (TestingFacade)ejbRootNamingContext.lookup("TestEar/TestEjb/TestingBean!com.facade.TestingFacade");
+			} catch (NamingException e) {
+				e.printStackTrace();
+			}
+			System.out.println(remote.sayHello(name));
+			System.out.println(System.nanoTime()-start1);
+			return remote.sayHello(name);
 		}
 		else
 			return name;
@@ -75,10 +63,10 @@ public class EjbTestOnline implements Serializable {
 	public void setNameToNull(){
 		this.name = "";
 	}
-	
+
 	public void setName(String name) {
 		this.name = name;
 	}
-	
-	
+
+
 }

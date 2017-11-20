@@ -149,7 +149,7 @@
 	            	<include name="jboss-ejb-client.properties"/>
 	            </fileset>
 	        </copy>
-		<copy overwrite="true" todir="${dist.home}">
+		<copy overwrite="true" todir="${dist.home}/WEB-INF">
 			            <fileset dir="config">
 			            	<include name="web.xml"/>
 			            	<include name="jboss-deployment-structure.xml"/>
@@ -177,5 +177,20 @@
     <target name="clean-autogens">
         <delete dir="autogen"/>
     </target>
+	
+	<!-- =============== Junit testing ============== -->
+	
+	<target name="junit-test" depends="compile">
+		<junit>
+		   <classpath refid = "TestEjbDynClient.classpath" />
+		   <classpath location="${build.home}" />
+		   <formatter type = "brief" usefile = "false" />
+			<test name="com.practice.EjbTestOnlineTest"
+					haltonfailure="no">
+					<formatter type="plain" />
+					
+				</test>
+		</junit>	
+	</target>
 	
 </project>
