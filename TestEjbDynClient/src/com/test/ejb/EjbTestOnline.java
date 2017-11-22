@@ -38,7 +38,7 @@ public class EjbTestOnline implements Serializable {
 			p.put("remote.connection.node1.host", "localhost");
 			p.put("remote.connectionprovider.create.options.org.xnio.Options.SSL_ENABLED", "false");
 			p.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
-			p.put("org.jboss.ejb.client.scoped.context", true); // enable scoping here
+			p.put("org.jboss.ejb.client.scoped.context", true); // enable scoping
 
 
 			try {
