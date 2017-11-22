@@ -94,7 +94,7 @@
 	
 	<!-- =============== Building up Project Structure    ============== -->
 	
-	<target name="dist" depends="compile">
+	<target name="dist" depends="junit-test">
 	    
 	     <mkdir dir="${dist.home}"/>
 	     <copy todir="${dist.home}" filtering="yes" overwrite="true" >
