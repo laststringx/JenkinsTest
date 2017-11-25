@@ -185,11 +185,7 @@
 		   <classpath refid = "TestEjbDynClient.classpath" />
 		   <classpath location="${build.home}" />
 		   <formatter type = "brief" usefile = "false" />
-			<test name="com.practice.EjbTestOnlineTest"
-					haltonfailure="no">
-					<formatter type="plain" />
-					
-				</test>
+	       <test name="com.practice.EjbTestOnlineTestSuit" haltonfailure="no"/>
 		</junit>	
 	</target>
 	
