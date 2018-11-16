@@ -10,7 +10,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import com.facade.TestingFacade;
+import com.remote.TestEjbRemote;
 @ManagedBean
 @SessionScoped
 public class EjbTestOnline implements Serializable {
@@ -28,7 +28,7 @@ public class EjbTestOnline implements Serializable {
 	}
 
 	public String getName() {
-		TestingFacade remote = null;
+		TestEjbRemote remote = null;
 		if(name != null || !name.equals("")){
 
 			long start1  = System.nanoTime();
@@ -44,7 +44,7 @@ public class EjbTestOnline implements Serializable {
 			try {
 				Context context = new InitialContext(p);
 				Context ejbRootNamingContext = (Context) context.lookup("ejb:");
-				remote = (TestingFacade)ejbRootNamingContext.lookup("TestEar/TestEjb/TestingBean!com.facade.TestingFacade");
+				remote = (TestEjbRemote)ejbRootNamingContext.lookup("TestEar/TestEjb/TestingBean!com.facade.TestingFacade");
 			} catch (NamingException e) {
 				e.printStackTrace();
 			}
