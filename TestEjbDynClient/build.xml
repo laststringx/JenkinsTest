@@ -181,7 +181,7 @@
 	
 	<!-- =============== Junit testing ============== -->
 	
-	<target name="junit-test">
+	<target name="junit-test" depends="compile">
 		<junit>
 		   <classpath refid = "TestEjbDynClient.classpath" />
 		   <classpath location="${build.home}" />
